@@ -139,10 +139,23 @@ void send_metric(String name, long metric)
 
 void send_data_to_broker()
 {
-    send_metric("consumption_low_tarif", CONSUMPTION_LOW_TARIF);
-    send_metric("consumption_high_tarif", CONSUMPTION_HIGH_TARIF);
-    send_metric("returndelivery_low_tarif", RETURNDELIVERY_LOW_TARIF);
-    send_metric("returndelivery_high_tarif", RETURNDELIVERY_HIGH_TARIF);
+    if (FLIPHIGHLOWTARIF) {
+        send_metric("consumption_low_tarif", CONSUMPTION_HIGH_TARIF);
+        send_metric("consumption_high_tarif", CONSUMPTION_LOW_TARIF);
+        send_metric("returndelivery_low_tarif", RETURNDELIVERY_HIGH_TARIF);
+        send_metric("returndelivery_high_tarif", RETURNDELIVERY_LOW_TARIF);
+        if (ACTUAL_TARIF == 1)
+        {
+            ACTUAL_TARIF = 2;
+        } else {
+            ACTUAL_TARIF = 1;
+        }
+    } else {
+        send_metric("consumption_low_tarif", CONSUMPTION_LOW_TARIF);
+        send_metric("consumption_high_tarif", CONSUMPTION_HIGH_TARIF);
+        send_metric("returndelivery_low_tarif", RETURNDELIVERY_LOW_TARIF);
+        send_metric("returndelivery_high_tarif", RETURNDELIVERY_HIGH_TARIF);
+    }
     send_metric("actual_consumption", ACTUAL_CONSUMPTION);
     send_metric("actual_returndelivery", ACTUAL_RETURNDELIVERY);
 
@@ -588,6 +601,15 @@ void processLine(int len)
 
     if (result)
     {
+         if (LAST_GAS_METER_M3 > 0) {
+            if (GAS_METER_M3 > LAST_GAS_METER_M3) {
+                ACTUAL_CONSUMPTION_GAS_M3 = GAS_METER_M3 - LAST_GAS_METER_M3;
+            }
+        } else {
+            ACTUAL_CONSUMPTION_GAS_M3 = 0;
+        }
+        LAST_GAS_METER_M3 = GAS_METER_M3;
+        
         send_data_to_broker();
         LAST_UPDATE_SENT = millis();
     }
@@ -729,6 +751,7 @@ void setup()
 
     // Setup a hw serial connection for communication with the P1 meter and logging (not using inversion)
     Serial.begin(BAUD_RATE, SERIAL_8N1, SERIAL_FULL);
+    Serial.setRxBufferSize(1024);
     Serial.println("");
     Serial.println("Swapping UART0 RX to inverted");
     Serial.flush();

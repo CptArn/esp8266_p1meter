@@ -46,6 +46,9 @@
 // * MQTT network settings
 #define MQTT_MAX_RECONNECT_TRIES 10
 
+// * Belgian meters have flipped high and low tarif codes, this variable allows you to flip
+#define FLIPHIGHLOWTARIF true
+
 // * MQTT root topic
 #define MQTT_ROOT_TOPIC "sensors/power/p1meter"
 
@@ -73,6 +76,8 @@ long RETURNDELIVERY_HIGH_TARIF;
 long ACTUAL_CONSUMPTION;
 long ACTUAL_RETURNDELIVERY;
 long GAS_METER_M3;
+long ACTUAL_CONSUMPTION_GAS_M3;
+long LAST_GAS_METER_M3;
 
 long L1_INSTANT_POWER_USAGE;
 long L2_INSTANT_POWER_USAGE;
